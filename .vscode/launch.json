@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Preencher Vaga",
+            "type": "python",
+            "request": "launch", 
+            "program": "${workspaceFolder}/src/preencher_vaga.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            },
+            "args": []
+        },
+        {
+            "name": "Debug Arquivo Atual",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
