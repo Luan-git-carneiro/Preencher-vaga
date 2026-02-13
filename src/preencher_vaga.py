@@ -10,6 +10,69 @@ from webdriver_manager.chrome import ChromeDriverManager
 from config import INFOS_PESSOAIS, MAPA_KEYWORDS  # Importa configs
 import unicodedata
 
+import ollama
+from config import INFOS_PESSOAIS
+
+# ====================== NOVA FUNÇÃO ======================
+def gerar_resposta_ia(pergunta: str) -> str:
+    """
+    Gera uma resposta personalizada para perguntas dissertativas do formulário.
+    
+    Args:
+        pergunta (str): A pergunta exata extraída do formulário
+    
+    Returns:
+        str: Resposta profissional e personalizada
+    """
+    # Contexto do usuário (vindo do config.py)
+    contexto = (
+        f"Nome completo: {INFOS_PESSOAIS.get('nome', 'Candidato')}. "
+        f"Experiências: {INFOS_PESSOAIS.get('experiencias', 'Experiência relevante')}. "
+        f"Habilidades principais: {INFOS_PESSOAIS.get('habilidades', 'Python, Selenium, etc.')}. "
+        "Estou buscando oportunidades na área de tecnologia."
+    )
+
+    # Prompt bem engenhado (em inglês para melhor resultado)
+    prompt = f"""
+    Você é um consultor de carreiras extremamente profissional e persuasivo.
+    Escreva uma resposta natural, concisa e convincente (máximo 180 palavras) 
+    para a seguinte pergunta de formulário de emprego:
+
+    Pergunta: "{pergunta}"
+
+    Use as seguintes informações pessoais do candidato:
+    {contexto}
+
+    Regras importantes:
+    - Seja honesto, confiante e positivo
+    - Evite clichês ("sou proativo", "trabalho em equipe")
+    - Foque em conquistas e motivação real
+    - Use linguagem formal, mas humana
+    """
+
+    try:
+        response = ollama.generate(
+            model='llama3.2:1b',      # modelo leve que estamos usando
+            prompt=prompt,
+            options={
+                "temperature": 0.7,   # equilíbrio entre criatividade e coerência
+                "num_predict": 300    # limite de tokens
+            }
+        )
+        
+        resposta_limpa = response['response'].strip()
+        
+        # Fallback caso a IA devolva algo muito curto ou vazio
+        if len(resposta_limpa) < 30:
+            return "Estou muito interessado nesta oportunidade e acredito que minhas experiências se alinham perfeitamente com os desafios da vaga."
+        
+        return resposta_limpa
+
+    except Exception as e:
+        print(f"⚠️  Erro ao gerar resposta com IA: {e}")
+        # Resposta padrão segura
+        return "Estou entusiasmado com a oportunidade e acredito que minhas habilidades em desenvolvimento e automação podem contribuir significativamente para a equipe."
+
 def normalizar_texto(texto):
     """Remove acentos e converte para minúsculo para busca robusta."""
     if not texto: return ""
@@ -123,7 +186,7 @@ def main():
         print(f"Erro: {e}. Verifique Chrome com --remote-debugging-port=9222.")
 
 if __name__ == "__main__":
-    main()
+     main()
 
 
 
